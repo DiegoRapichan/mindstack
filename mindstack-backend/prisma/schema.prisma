@@ -1,0 +1,95 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  cursos    Curso[]
+}
+
+model Curso {
+  id          String   @id @default(uuid())
+  titulo      String   // Ex: Pós Fullstack, Java Udemy
+  plataforma  String   // Ex: Descomplica, Udemy, Faculdade X
+  status      String   // Ex: PLANEJADO, CURSANDO, ATRASADO, CONCLUIDO
+  tipo        String   // Ex: GRADUACAO, POS, CURSO_LIVRE
+  dataInicio  DateTime?
+  dataFim     DateTime?
+  
+  usuarioId   String
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  
+  modulos     Modulo[]
+  habilidades SkillCurso[]
+}
+
+model Modulo {
+  id          String   @id @default(uuid())
+  titulo      String
+  ordem       Int
+  cursoId     String
+  curso       Curso    @relation(fields: [cursoId], references: [id])
+  
+  aulas       Aula[]
+  trabalhos   Trabalho[]
+}
+
+model Aula {
+  id              String   @id @default(uuid())
+  titulo          String
+  sincrona        Boolean  @default(false)
+  dataHora        DateTime? 
+  linkAcesso      String?
+  falta           Boolean  @default(false) 
+  concluida       Boolean  @default(false)
+  
+  moduloId        String
+  modulo          Modulo   @relation(fields: [moduloId], references: [id])
+  
+  resumo          ResumoIA?
+}
+
+model ResumoIA {
+  id              String   @id @default(uuid())
+  conteudo        String   @db.Text
+  textoOriginal   String   @db.Text
+  dataGeracao     DateTime @default(now())
+  
+  aulaId          String   @unique
+  aula            Aula     @relation(fields: [aulaId], references: [id])
+}
+
+model Trabalho {
+  id          String   @id @default(uuid())
+  titulo      String
+  descricao   String?
+  dataEntrega DateTime
+  status      String   // PENDENTE, EM_ANDAMENTO, CONCLUIDO
+  
+  moduloId    String
+  modulo      Modulo   @relation(fields: [moduloId], references: [id])
+}
+
+model Skill {
+  id          String   @id @default(uuid())
+  nome        String   @unique 
+  cursos      SkillCurso[]
+}
+
+model SkillCurso {
+  cursoId     String
+  skillId     String
+  curso       Curso    @relation(fields: [cursoId], references: [id])
+  skill       Skill    @relation(fields: [skillId], references: [id])
+
+  @@id([cursoId, skillId])
+}

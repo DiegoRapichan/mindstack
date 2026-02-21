@@ -1,20 +1,16 @@
 import { Router } from "express";
+import multer from "multer";
 import { ResumoController } from "../controllers/ResumoController";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { upload } from "../config/multer";
 
 const resumoRoutes = Router();
-const resumoController = new ResumoController();
 
-// Todas as rotas de resumo exigem que o usuário esteja logado
+// MUDANÇA CRUCIAL AQUI: Usando memória RAM para o file.buffer funcionar!
+const upload = multer({ storage: multer.memoryStorage() });
+
 resumoRoutes.use(authMiddleware);
 
-// Rota de upload: Usa o Multer ANTES de chamar o Controller
-// "upload.single('arquivoPdf')" diz pro Express: "Espere um único arquivo e o nome do campo será 'arquivoPdf'"
-resumoRoutes.post(
-  "/upload",
-  upload.single("arquivoPdf"),
-  resumoController.uploadEGerar,
-);
+resumoRoutes.post("/", upload.single("pdf"), ResumoController.create);
+resumoRoutes.get("/cursos/:cursoId", ResumoController.listarPorCurso);
 
 export { resumoRoutes };

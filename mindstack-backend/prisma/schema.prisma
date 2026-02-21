@@ -30,6 +30,7 @@ model Curso {
   
   modulos     Modulo[]
   habilidades SkillCurso[]
+  resumos  Resumo[] 
 }
 
 model Modulo {
@@ -92,4 +93,16 @@ model SkillCurso {
   skill       Skill    @relation(fields: [skillId], references: [id])
 
   @@id([cursoId, skillId])
+}
+
+model Resumo {
+  id              String   @id @default(uuid())
+  conteudo        String   @db.Text // @db.Text garante que cabe textos gigantes do Gemini
+  tamanhoOriginal Int
+  
+  // Relacionamento com Curso
+  cursoId         String
+  curso           Curso    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
 }

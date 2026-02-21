@@ -11,11 +11,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Registra as rotas
+// Registra as rotas principais
 app.use("/auth", usuarioRoutes);
-
 app.use("/cursos", cursoRoutes);
-app.use("/resumos", resumoRoutes);
+app.use("/resumos", resumoRoutes); // Aqui a mágica acontece e vai pro arquivo certo!
 
 app.get("/health", (req, res) => {
   return res.json({

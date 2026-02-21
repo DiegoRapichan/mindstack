@@ -15,16 +15,14 @@ export class CursoController {
         return res.status(401).json({ error: "Usuário não autenticado." });
       }
 
-      // Cria o curso no banco e já amarra ele ao ID do Diego
+      // Cria o curso no banco e já amarra ele ao ID
       const curso = await prisma.curso.create({
         data: {
           titulo,
           plataforma,
-          status,
-          tipo,
-          dataInicio: dataInicio ? new Date(dataInicio) : null,
-          dataFim: dataFim ? new Date(dataFim) : null,
-          usuarioId, // Relacionamento no Prisma é feito assim!
+          status: "EM_ANDAMENTO",
+          tipo: "CURSO_LIVRE",
+          usuarioId: req.usuarioId,
         },
       });
 

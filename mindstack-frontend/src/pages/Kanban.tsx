@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   CalendarClock,
   Filter,
+  Repeat,
 } from "lucide-react";
 
 interface Disciplina {
@@ -25,18 +26,14 @@ interface Tarefa {
   descricao?: string;
   status: "TODO" | "IN_PROGRESS" | "DONE";
   disciplinaId?: string;
-  disciplina?: {
-    nome: string;
-  };
+  disciplina?: { nome: string };
   dataEntrega?: string;
   ordem: number;
+  recorrente: boolean;
 }
 
 interface Colunas {
-  [key: string]: {
-    nome: string;
-    items: Tarefa[];
-  };
+  [key: string]: { nome: string; items: Tarefa[] };
 }
 
 export function Kanban() {
@@ -48,7 +45,6 @@ export function Kanban() {
   });
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [carregando, setCarregando] = useState(true);
-
   const [filtroDisciplina, setFiltroDisciplina] = useState<string>("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,6 +52,7 @@ export function Kanban() {
   const [descricao, setDescricao] = useState("");
   const [disciplinaId, setDisciplinaId] = useState("");
   const [dataEntrega, setDataEntrega] = useState("");
+  const [recorrente, setRecorrente] = useState(false);
   const [tarefaEditandoId, setTarefaEditandoId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -71,10 +68,9 @@ export function Kanban() {
 
       const tarefasDB: Tarefa[] = resTarefas.data;
       tarefasDB.sort((a, b) => a.ordem - b.ordem);
-
       setDisciplinas(resDisciplinas.data);
 
-      const novasColunas = {
+      setColunas({
         TODO: {
           nome: "A Fazer",
           items: tarefasDB.filter((t) => t.status === "TODO"),
@@ -87,11 +83,9 @@ export function Kanban() {
           nome: "Concluído",
           items: tarefasDB.filter((t) => t.status === "DONE"),
         },
-      };
-
-      setColunas(novasColunas);
+      });
     } catch (error) {
-      console.error("Erro ao carregar dados", error);
+      console.error(error);
     } finally {
       setCarregando(false);
     }
@@ -130,12 +124,9 @@ export function Kanban() {
         realDestinationIndex = 0;
       } else {
         const itemAcima = itensDestinoFiltrados[destination.index - 1];
-        if (itemAcima) {
-          realDestinationIndex =
-            itensDestino.findIndex((t) => t.id === itemAcima.id) + 1;
-        } else {
-          realDestinationIndex = itensDestino.length;
-        }
+        realDestinationIndex = itemAcima
+          ? itensDestino.findIndex((t) => t.id === itemAcima.id) + 1
+          : itensDestino.length;
       }
     }
 
@@ -162,8 +153,8 @@ export function Kanban() {
 
     try {
       await api.put("/tarefas/reordenar", { tarefas: tarefasParaAtualizar });
+      carregarDados();
     } catch (error) {
-      console.error("Erro ao salvar ordem", error);
       carregarDados();
     }
   };
@@ -184,6 +175,7 @@ export function Kanban() {
     setDescricao(tarefa.descricao || "");
     setDisciplinaId(tarefa.disciplinaId || "");
     setDataEntrega(tarefa.dataEntrega ? tarefa.dataEntrega.split("T")[0] : "");
+    setRecorrente(tarefa.recorrente || false);
     setTarefaEditandoId(tarefa.id);
     setIsModalOpen(true);
   };
@@ -193,6 +185,7 @@ export function Kanban() {
     setDescricao("");
     setDisciplinaId(filtroDisciplina !== "" ? filtroDisciplina : "");
     setDataEntrega("");
+    setRecorrente(false);
     setTarefaEditandoId(null);
     setIsModalOpen(true);
   };
@@ -201,13 +194,13 @@ export function Kanban() {
     e.preventDefault();
     if (!titulo.trim()) return;
 
-    const ordemInicial = colunas["TODO"].items.length;
     const payload = {
       titulo,
       descricao,
       disciplinaId: disciplinaId || null,
       dataEntrega: dataEntrega || null,
-      ordem: tarefaEditandoId ? undefined : ordemInicial,
+      recorrente,
+      ordem: tarefaEditandoId ? undefined : colunas["TODO"].items.length,
     };
 
     try {
@@ -242,66 +235,66 @@ export function Kanban() {
     );
 
   return (
-    <div className="p-8 min-h-screen bg-gray-900 text-white">
-      <header className="flex justify-between items-center bg-gray-800 p-6 rounded-2xl shadow-lg border border-gray-700 mb-6">
-        <div>
+    <div className="p-4 md:p-8 min-h-screen bg-gray-900 text-white">
+      <header className="flex flex-col md:flex-row justify-between items-center bg-gray-800 p-4 md:p-6 rounded-2xl shadow-lg border border-gray-700 mb-6 gap-4">
+        <div className="text-center md:text-left">
           <h1 className="text-2xl font-bold text-blue-500">Meu Kanban</h1>
-          <p className="text-gray-400">
+          <p className="text-gray-400 text-sm md:text-base">
             Arraste os cards para priorizar e atualizar o status
           </p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex w-full md:w-auto gap-2 md:gap-4">
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium text-gray-300 transition"
+            className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-medium text-gray-300 transition"
           >
-            <ArrowLeft className="w-5 h-5" /> Voltar
+            <ArrowLeft className="w-5 h-5" />{" "}
+            <span className="hidden md:inline">Voltar</span>
           </button>
-
           <button
             onClick={abrirModalNovaTarefa}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition"
+            className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition"
           >
             <Plus className="w-5 h-5" /> Nova Tarefa
           </button>
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3 mb-8 bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
-        <div className="flex items-center gap-2 text-gray-400 mr-2">
-          <Filter className="w-5 h-5" />
-          <span className="font-medium">Filtrar por:</span>
-        </div>
-
-        <button
-          onClick={() => setFiltroDisciplina("")}
-          className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-            filtroDisciplina === ""
-              ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
-              : "bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700"
-          }`}
-        >
-          Todas
-        </button>
-
-        {disciplinas.map((d) => (
+      <div className="flex overflow-x-auto pb-2 mb-4 scrollbar-hide">
+        <div className="flex flex-nowrap items-center gap-2 bg-gray-800/50 p-2 rounded-xl border border-gray-700/50 min-w-max">
+          <div className="flex items-center gap-2 text-gray-400 mr-2 px-2">
+            <Filter className="w-4 h-4" />
+            <span className="font-medium text-sm">Filtros:</span>
+          </div>
           <button
-            key={d.id}
-            onClick={() => setFiltroDisciplina(d.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all ${
-              filtroDisciplina === d.id
-                ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
-                : "bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700"
+            onClick={() => setFiltroDisciplina("")}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+              filtroDisciplina === ""
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                : "bg-gray-800 text-gray-400 border border-gray-700"
             }`}
           >
-            <BookOpen className="w-4 h-4" />
-            {d.nome}
+            Todas
           </button>
-        ))}
+          {disciplinas.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => setFiltroDisciplina(d.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                filtroDisciplina === d.id
+                  ? "bg-purple-600 text-white shadow-lg shadow-purple-500/30"
+                  : "bg-gray-800 text-gray-400 border border-gray-700"
+              }`}
+            >
+              <BookOpen className="w-3 h-3" />
+              {d.nome}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-280px)]">
+      <div className="flex flex-col md:flex-row gap-6 h-auto md:h-[calc(100vh-280px)] overflow-y-auto overflow-x-hidden pb-10">
         <DragDropContext onDragEnd={onDragEnd}>
           {Object.entries(colunas).map(([idColuna, coluna]) => {
             const itensFiltrados =
@@ -314,7 +307,7 @@ export function Kanban() {
             return (
               <div
                 key={idColuna}
-                className="flex flex-col bg-gray-800 border border-gray-700 rounded-xl w-full md:w-1/3 p-4 shadow-sm"
+                className="flex flex-col bg-gray-800 border border-gray-700 rounded-xl w-full md:w-1/3 p-3 md:p-4 shadow-sm min-h-[300px] md:min-h-0"
               >
                 <div className="flex items-center justify-between mb-4 px-2">
                   <h2 className="font-bold text-gray-200">{coluna.nome}</h2>
@@ -328,7 +321,7 @@ export function Kanban() {
                     <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
-                      className={`flex-1 transition-colors rounded-lg p-2 ${
+                      className={`flex-1 transition-colors rounded-lg p-2 min-h-[150px] ${
                         snapshot.isDraggingOver
                           ? "bg-gray-700/50"
                           : "bg-transparent"
@@ -350,7 +343,7 @@ export function Kanban() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={`group relative p-4 mb-3 min-h-[100px] bg-gray-900 text-gray-200 rounded-lg shadow-md border-l-4 ${
+                                className={`group relative p-3 md:p-4 mb-3 min-h-[100px] bg-gray-900 text-gray-200 rounded-lg shadow-md border-l-4 ${
                                   item.status === "DONE"
                                     ? "border-green-500"
                                     : item.status === "IN_PROGRESS"
@@ -359,11 +352,10 @@ export function Kanban() {
                                 } ${snapshot.isDragging ? "shadow-2xl ring-2 ring-blue-500 opacity-90" : ""}`}
                                 style={{ ...provided.draggableProps.style }}
                               >
-                                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute top-2 right-2 flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                   <button
                                     onClick={() => abrirModalEditar(item)}
-                                    className="text-gray-400 hover:text-blue-500 transition"
-                                    title="Editar"
+                                    className="p-1 bg-gray-800/80 rounded md:bg-transparent text-gray-400 hover:text-blue-500 transition"
                                   >
                                     <Edit2 className="w-4 h-4" />
                                   </button>
@@ -371,45 +363,45 @@ export function Kanban() {
                                     onClick={(e) =>
                                       handleExcluirTarefa(item.id, e)
                                     }
-                                    className="text-gray-400 hover:text-red-500 transition"
-                                    title="Excluir"
+                                    className="p-1 bg-gray-800/80 rounded md:bg-transparent text-gray-400 hover:text-red-500 transition"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 mb-3">
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                  {item.recorrente && (
+                                    <div
+                                      className="flex items-center gap-1 text-[10px] md:text-xs font-medium text-blue-400 bg-blue-900/30 px-2 py-1 rounded-md border border-blue-800/50"
+                                      title="Tarefa Recorrente Semanal"
+                                    >
+                                      <Repeat className="w-3 h-3" /> Repete
+                                    </div>
+                                  )}
                                   {item.disciplina && (
-                                    <div className="flex items-center gap-1 text-xs font-medium text-purple-400 bg-purple-900/30 w-fit px-2 py-1 rounded-md border border-purple-800/50">
-                                      <BookOpen className="w-3 h-3" />
+                                    <div className="flex items-center gap-1 text-[10px] md:text-xs font-medium text-purple-400 bg-purple-900/30 px-2 py-1 rounded-md border border-purple-800/50">
+                                      <BookOpen className="w-3 h-3" />{" "}
                                       {item.disciplina.nome}
                                     </div>
                                   )}
-
                                   {item.dataEntrega && (
                                     <div
-                                      className={`flex items-center gap-1 text-xs font-medium w-fit px-2 py-1 rounded-md border ${
+                                      className={`flex items-center gap-1 text-[10px] md:text-xs font-medium px-2 py-1 rounded-md border ${
                                         isAtrasado
-                                          ? "bg-red-900/30 text-red-400 border-red-800/50 animate-pulse"
+                                          ? "bg-red-900/30 text-red-400 border-red-800/50"
                                           : "bg-gray-700/50 text-gray-300 border-gray-600"
                                       }`}
                                     >
-                                      <CalendarClock className="w-3 h-3" />
+                                      <CalendarClock className="w-3 h-3" />{" "}
                                       {formatarDataBR(item.dataEntrega)}
-                                      {isAtrasado && (
-                                        <span className="ml-1 font-bold">
-                                          (Atrasado)
-                                        </span>
-                                      )}
                                     </div>
                                   )}
                                 </div>
-
-                                <div className="font-bold text-lg mb-1 pr-12">
+                                <div className="font-bold text-base md:text-lg mb-1 pr-12">
                                   {item.titulo}
                                 </div>
                                 {item.descricao && (
-                                  <p className="text-sm text-gray-400 mt-2 line-clamp-3 leading-relaxed">
+                                  <p className="text-xs md:text-sm text-gray-400 mt-2 line-clamp-3 leading-relaxed">
                                     {item.descricao}
                                   </p>
                                 )}
@@ -442,7 +434,6 @@ export function Kanban() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-
             <form onSubmit={handleSalvarTarefa} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -452,15 +443,14 @@ export function Kanban() {
                   type="text"
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ex: Entregar Trabalho"
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Disciplina (Opcional)
+                    Disciplina
                   </label>
                   <select
                     value={disciplinaId}
@@ -477,7 +467,7 @@ export function Kanban() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Prazo (Opcional)
+                    Prazo
                   </label>
                   <input
                     type="date"
@@ -489,16 +479,32 @@ export function Kanban() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Descrição (Opcional)
+                  Descrição
                 </label>
                 <textarea
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
-                  placeholder="Detalhes da tarefa..."
                   rows={3}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
+
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="recorrente"
+                  checked={recorrente}
+                  onChange={(e) => setRecorrente(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <label
+                  htmlFor="recorrente"
+                  className="text-sm font-medium text-gray-300 cursor-pointer"
+                >
+                  Repetir tarefa semanalmente (cria cópia ao concluir)
+                </label>
+              </div>
+
               <div className="flex gap-3 mt-6 pt-4 border-t border-gray-700">
                 <button
                   type="button"
@@ -511,7 +517,7 @@ export function Kanban() {
                   type="submit"
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition"
                 >
-                  {tarefaEditandoId ? "Salvar Alterações" : "Salvar Tarefa"}
+                  Salvar
                 </button>
               </div>
             </form>

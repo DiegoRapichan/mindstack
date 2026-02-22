@@ -145,6 +145,7 @@ model Tarefa {
   status      String   @default("TODO") // Valores esperados: "TODO", "IN_PROGRESS", "DONE"
   dataEntrega  DateTime? 
   ordem        Int         @default(0)
+  recorrente   Boolean     @default(false)
   
   // Uma tarefa pertence a um usuário
   usuarioId   String

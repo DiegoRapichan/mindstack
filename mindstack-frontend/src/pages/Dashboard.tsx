@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
-import { useTheme } from "../contexts/ThemeContext"; // 👈 Importamos o nosso Hook de Tema
+import { useTheme } from "../contexts/ThemeContext";
 import {
   PieChart,
   Pie,
@@ -28,6 +28,8 @@ import {
   Github,
   Linkedin,
   Mail,
+  Send,
+  Settings,
 } from "lucide-react";
 
 interface Curso {
@@ -51,7 +53,7 @@ interface Estatisticas {
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme(); // 👈 Usamos o Hook aqui
+  const { theme, toggleTheme } = useTheme();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +62,13 @@ export function Dashboard() {
   const [tipo, setTipo] = useState("CURSO_LIVRE");
 
   const [estatisticas, setEstatisticas] = useState<Estatisticas | null>(null);
+
+  // ESTADOS DO MODAL DE CONTATO
+  const [isContatoModalOpen, setIsContatoModalOpen] = useState(false);
+  const [contatoNome, setContatoNome] = useState("");
+  const [contatoEmail, setContatoEmail] = useState("");
+  const [contatoMensagem, setContatoMensagem] = useState("");
+  const [enviandoContato, setEnviandoContato] = useState(false);
 
   const usuarioString = localStorage.getItem("@Mindstack:user");
   const usuario = usuarioString ? JSON.parse(usuarioString) : null;
@@ -101,7 +110,28 @@ export function Dashboard() {
     }
   }
 
-  // Cores dinâmicas para os gráficos dependendo do tema
+  // FUNÇÃO DE ENVIAR CONTATO
+  async function handleEnviarContato(e: React.FormEvent) {
+    e.preventDefault();
+    setEnviandoContato(true);
+    try {
+      await api.post("/contato", {
+        nome: contatoNome,
+        email: contatoEmail,
+        mensagem: contatoMensagem,
+      });
+      alert("Mensagem enviada com sucesso!");
+      setIsContatoModalOpen(false);
+      setContatoNome("");
+      setContatoEmail("");
+      setContatoMensagem("");
+    } catch (error) {
+      alert("Erro ao enviar mensagem. Verifique a configuração do servidor.");
+    } finally {
+      setEnviandoContato(false);
+    }
+  }
+
   const tooltipStyle =
     theme === "dark"
       ? {
@@ -120,10 +150,8 @@ export function Dashboard() {
   const axisColor = theme === "dark" ? "#9CA3AF" : "#6B7280";
 
   return (
-    // 👈 Classes dinâmicas no container principal: dark:bg-gray-900 (escuro) e bg-gray-50 (claro)
     <div className="min-h-screen transition-colors duration-300 dark:bg-gray-900 bg-gray-50 dark:text-white text-gray-900 flex flex-col">
       <div className="flex-grow p-8">
-        {/* Cabeçalho */}
         <header className="flex flex-col md:flex-row justify-between items-center dark:bg-gray-800 bg-white p-6 rounded-2xl shadow-lg border dark:border-gray-700 border-gray-200 mb-8 transition-colors duration-300">
           <div className="mb-4 md:mb-0 text-center md:text-left">
             <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-500">
@@ -139,7 +167,6 @@ export function Dashboard() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {/* 👈 Botão de Alternar Tema */}
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg dark:bg-gray-700 bg-gray-100 dark:text-yellow-400 text-blue-600 hover:opacity-80 transition-colors"
@@ -162,6 +189,15 @@ export function Dashboard() {
             >
               Acessar Kanban
             </button>
+
+            <button
+              onClick={() => navigate("/configuracoes")}
+              className="p-2 rounded-lg dark:bg-gray-700 bg-gray-100 dark:text-gray-300 text-gray-600 hover:opacity-80 transition-colors"
+              title="Configurações do Perfil"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
             <button
               onClick={handleLogout}
               className="dark:bg-red-500/10 bg-red-50 dark:text-red-500 text-red-600 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white px-4 py-2 rounded-lg transition-colors font-medium"
@@ -486,9 +522,82 @@ export function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* MODAL DE CONTATO ADICIONADO AQUI! */}
+        {isContatoModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-opacity">
+            <div className="dark:bg-gray-800 bg-white rounded-2xl p-6 w-full max-w-md border dark:border-gray-700 border-gray-200 shadow-2xl transition-colors duration-300">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold dark:text-white text-gray-900">
+                  Entre em Contato
+                </h2>
+                <button
+                  onClick={() => setIsContatoModalOpen(false)}
+                  className="dark:text-gray-400 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={handleEnviarContato} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-1">
+                    Seu Nome
+                  </label>
+                  <input
+                    type="text"
+                    value={contatoNome}
+                    onChange={(e) => setContatoNome(e.target.value)}
+                    className="w-full dark:bg-gray-700 bg-gray-50 border dark:border-gray-600 border-gray-300 rounded-lg px-4 py-2 dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-1">
+                    Seu E-mail
+                  </label>
+                  <input
+                    type="email"
+                    value={contatoEmail}
+                    onChange={(e) => setContatoEmail(e.target.value)}
+                    className="w-full dark:bg-gray-700 bg-gray-50 border dark:border-gray-600 border-gray-300 rounded-lg px-4 py-2 dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium dark:text-gray-300 text-gray-700 mb-1">
+                    Mensagem
+                  </label>
+                  <textarea
+                    value={contatoMensagem}
+                    onChange={(e) => setContatoMensagem(e.target.value)}
+                    rows={4}
+                    className="w-full dark:bg-gray-700 bg-gray-50 border dark:border-gray-600 border-gray-300 rounded-lg px-4 py-2 dark:text-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors resize-none"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={enviandoContato}
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white font-medium py-2.5 rounded-lg transition-colors mt-4 shadow-md shadow-blue-500/20"
+                >
+                  {enviandoContato ? (
+                    "Enviando..."
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" /> Enviar Mensagem
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* 🔴 RODAPÉ (FOOTER) PROFISSIONAL COM SEUS DADOS */}
       <footer className="w-full dark:bg-gray-900 bg-white border-t dark:border-gray-800 border-gray-200 py-8 transition-colors duration-300 mt-auto">
         <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col items-center md:items-start">
@@ -508,13 +617,13 @@ export function Dashboard() {
               </span>
             </p>
             <p className="text-xs dark:text-gray-500 text-gray-400 mt-1 font-medium px-3 py-1 dark:bg-gray-800 bg-gray-100 rounded-full">
-              Desenvolvedor Back-End Júnior
+              Desenvolvedor Full-Stack
             </p>
           </div>
 
           <div className="flex gap-4">
             <a
-              href="https://github.com/DiegoColombariRapichan"
+              href="https://github.com/DiegoRapichan"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-full dark:bg-gray-800 bg-gray-100 dark:text-gray-400 text-gray-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
@@ -523,7 +632,7 @@ export function Dashboard() {
               <Github className="w-5 h-5" />
             </a>
             <a
-              href="#"
+              href="https://linkedin.com/in/diego-rapichan"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-full dark:bg-gray-800 bg-gray-100 dark:text-gray-400 text-gray-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
@@ -531,13 +640,14 @@ export function Dashboard() {
             >
               <Linkedin className="w-5 h-5" />
             </a>
-            <a
-              href="mailto:seuemail@exemplo.com"
+            {/* BOTÃO QUE ABRE O MODAL */}
+            <button
+              onClick={() => setIsContatoModalOpen(true)}
               className="p-2 rounded-full dark:bg-gray-800 bg-gray-100 dark:text-gray-400 text-gray-600 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-              title="E-mail"
+              title="Enviar E-mail"
             >
               <Mail className="w-5 h-5" />
-            </a>
+            </button>
           </div>
         </div>
       </footer>

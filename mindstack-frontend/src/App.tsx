@@ -5,6 +5,7 @@ import { CursoDetalhe } from "./pages/CursoDetalhe";
 import { DisciplinaDetalhe } from "./pages/DisciplinaDetalhe";
 import { Kanban } from "./pages/Kanban";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { Configuracoes } from "./pages/Configuracoes";
 
 function RotaPrivada({ children }: { children: JSX.Element }) {
   const token = localStorage.getItem("@Mindstack:token");
@@ -43,6 +44,7 @@ export default function App() {
               </RotaPrivada>
             }
           />
+          <Route path="/configuracoes" element={<Configuracoes />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>

@@ -6,8 +6,9 @@ import { DisciplinaDetalhe } from "./pages/DisciplinaDetalhe";
 import { Kanban } from "./pages/Kanban";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { Configuracoes } from "./pages/Configuracoes";
+import type { ReactNode } from "react";
 
-function RotaPrivada({ children }: { children: JSX.Element }) {
+function RotaPrivada({ children }: { children: ReactNode }) {
   const token = localStorage.getItem("@Mindstack:token");
   return token ? children : <Navigate to="/" />;
 }

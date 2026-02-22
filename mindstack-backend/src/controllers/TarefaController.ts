@@ -65,7 +65,7 @@ export class TarefaController {
       const usuarioId = req.usuarioId!;
 
       const tarefa = await prisma.tarefa.updateMany({
-        where: { id, usuarioId },
+        where: { id: String(id), usuarioId },
         data: {
           titulo,
           descricao,
@@ -94,7 +94,7 @@ export class TarefaController {
       const usuarioId = req.usuarioId!;
 
       const tarefa = await prisma.tarefa.deleteMany({
-        where: { id, usuarioId },
+        where: { id: String(id), usuarioId },
       });
 
       if (tarefa.count === 0) {

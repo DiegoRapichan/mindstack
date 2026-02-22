@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.aulaRoutes = void 0;
+const express_1 = require("express");
+const AulaController_1 = require("../controllers/AulaController");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const aulaRoutes = (0, express_1.Router)();
+exports.aulaRoutes = aulaRoutes;
+aulaRoutes.use(authMiddleware_1.authMiddleware);
+aulaRoutes.post("/", AulaController_1.AulaController.create);
+aulaRoutes.get("/disciplina/:disciplinaId", AulaController_1.AulaController.listarPorDisciplina);
+aulaRoutes.patch("/:aulaId/status", AulaController_1.AulaController.atualizarStatus);

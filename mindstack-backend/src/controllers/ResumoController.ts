@@ -34,7 +34,7 @@ export class ResumoController {
       console.log("Extraindo texto do PDF...");
 
       const textoCru = await new Promise<string>((resolve, reject) => {
-        const pdfParser = new PDFParser(null, 1);
+        const pdfParser = new PDFParser(null, true as any);
         pdfParser.on("pdfParser_dataError", (errData: any) =>
           reject(errData.parserError),
         );

@@ -1,67 +1,51 @@
-import { PrismaClient } from "@prisma/client";
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../middlewares/authMiddleware";
+import { prisma } from "../lib/prisma";
 
-const prisma = new PrismaClient();
-
-export const NotificacaoController = {
-  async buscarNotificacoes(req: Request, res: Response) {
+export class NotificacaoController {
+  static async buscarNotificacoes(
+    req: AuthRequest,
+    res: Response,
+  ): Promise<any> {
     try {
-      const usuarioId = req.userId;
-
-      if (!usuarioId) {
-        return res.status(401).json({ error: "Usuário não autenticado." });
-      }
-
+      const usuarioId = req.usuarioId!;
       const notificacoes = await prisma.notificacao.findMany({
-        where: {
-          usuarioId: usuarioId,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        where: { usuarioId },
+        orderBy: { createdAt: "desc" },
       });
-
-      return res.status(200).json(notificacoes);
+      return res.json(notificacoes);
     } catch (error) {
-      console.error("Erro ao buscar notificações:", error);
-      return res.status(500).json({ error: "Erro interno no servidor" });
+      return res.status(500).json({ error: "Erro ao buscar notificações." });
     }
-  },
+  }
 
-  async marcarComoLida(req: Request, res: Response) {
+  static async marcarComoLida(req: AuthRequest, res: Response): Promise<any> {
     try {
       const { id } = req.params;
-
-      const notificacaoAtualizada = await prisma.notificacao.update({
-        where: { id: id },
+      const usuarioId = req.usuarioId!;
+      const notificacao = await prisma.notificacao.updateMany({
+        where: { id: String(id), usuarioId },
         data: { lida: true },
       });
-
-      return res.status(200).json(notificacaoAtualizada);
+      return res.json({ message: "Notificação lida." });
     } catch (error) {
-      console.error("Erro ao marcar notificação como lida:", error);
-      return res.status(500).json({ error: "Erro interno no servidor" });
+      return res.status(500).json({ error: "Erro ao atualizar." });
     }
-  },
+  }
 
-  async marcarTodasComoLidas(req: Request, res: Response) {
+  static async marcarTodasComoLidas(
+    req: AuthRequest,
+    res: Response,
+  ): Promise<any> {
     try {
-      const usuarioId = req.userId;
-
+      const usuarioId = req.usuarioId!;
       await prisma.notificacao.updateMany({
-        where: {
-          usuarioId: usuarioId,
-          lida: false,
-        },
+        where: { usuarioId, lida: false },
         data: { lida: true },
       });
-
-      return res
-        .status(200)
-        .json({ message: "Todas as notificações marcadas como lidas" });
+      return res.json({ message: "Todas lidas." });
     } catch (error) {
-      console.error("Erro ao limpar notificações:", error);
-      return res.status(500).json({ error: "Erro interno no servidor" });
+      return res.status(500).json({ error: "Erro." });
     }
-  },
-};
+  }
+}

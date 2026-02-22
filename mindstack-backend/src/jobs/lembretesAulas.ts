@@ -60,7 +60,7 @@ export const iniciarCronJobs = () => {
             } catch (err) {
               console.error(
                 `[X] Erro ao salvar notificação no banco:`,
-                err.message,
+                (err as Error).message,
               );
             }
           }
@@ -74,7 +74,6 @@ export const iniciarCronJobs = () => {
       }
     },
     {
-      scheduled: true,
       timezone: "America/Sao_Paulo",
     },
   );

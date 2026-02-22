@@ -11,7 +11,7 @@ import { tarefaRoutes } from "./routes/tarefa.routes";
 import { dashboardRoutes } from "./routes/dashboard.routes";
 import { ContatoController } from "./controllers/ContatoController";
 
-import { iniciarCronJobs } from "./jobs/lembretesAulas.js";
+import { iniciarCronJobs } from "./jobs/lembretesAulas";
 
 const app = express();
 
@@ -38,6 +38,6 @@ app.get("/health", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3333;
-app.listen(PORT, () =>
-  console.log(`🔥 Mindstack Backend rodando na porta ${PORT}`),
-);
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+});

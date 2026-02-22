@@ -48,7 +48,7 @@ export class DisciplinaController {
 
       const disciplinas = await prisma.disciplina.findMany({
         where: {
-          cursoId,
+          cursoId: String(cursoId),
           usuarioId,
         },
         orderBy: { nome: "asc" },

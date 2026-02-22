@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { NotificacaoController } from "../controllers/NotificacaoController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
-import { authMiddleware } from "../middlewares/middlewares/auth";
-
-export const notificacaoRoutes = Router();
+const notificacaoRoutes = Router();
 
 notificacaoRoutes.get(
   "/",
@@ -20,3 +19,5 @@ notificacaoRoutes.patch(
   authMiddleware,
   NotificacaoController.marcarComoLida,
 );
+
+export { notificacaoRoutes };

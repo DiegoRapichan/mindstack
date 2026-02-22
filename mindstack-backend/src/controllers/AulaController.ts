@@ -43,7 +43,7 @@ export class AulaController {
       const usuarioId = req.usuarioId;
 
       const aulas = await prisma.aula.findMany({
-        where: { disciplinaId, usuarioId },
+        where: { disciplinaId: String(disciplinaId), usuarioId },
         orderBy: { dataHora: "asc" }, // Traz as aulas mais antigas primeiro
         include: {
           resumos: true, // Já traz os resumos atrelados a essa aula!
@@ -65,7 +65,7 @@ export class AulaController {
       const usuarioId = req.usuarioId;
 
       const aula = await prisma.aula.updateMany({
-        where: { id: aulaId, usuarioId },
+        where: { id: String(aulaId), usuarioId },
         data: { status },
       });
 

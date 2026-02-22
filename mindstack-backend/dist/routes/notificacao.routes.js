@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.notificacaoRoutes = void 0;
+const express_1 = require("express");
+const NotificacaoController_1 = require("../controllers/NotificacaoController");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const notificacaoRoutes = (0, express_1.Router)();
+exports.notificacaoRoutes = notificacaoRoutes;
+notificacaoRoutes.get("/", authMiddleware_1.authMiddleware, NotificacaoController_1.NotificacaoController.buscarNotificacoes);
+notificacaoRoutes.patch("/ler-todas", authMiddleware_1.authMiddleware, NotificacaoController_1.NotificacaoController.marcarTodasComoLidas);
+notificacaoRoutes.patch("/:id/lida", authMiddleware_1.authMiddleware, NotificacaoController_1.NotificacaoController.marcarComoLida);

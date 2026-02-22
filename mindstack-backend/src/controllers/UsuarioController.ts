@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 export class UsuarioController {
   async register(req: Request, res: Response) {

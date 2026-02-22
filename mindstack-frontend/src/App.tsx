@@ -4,6 +4,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { CursoDetalhe } from "./pages/CursoDetalhe";
 import { DisciplinaDetalhe } from "./pages/DisciplinaDetalhe";
 import { Kanban } from "./pages/Kanban";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function RotaPrivada({ children }: { children: JSX.Element }) {
   const token = localStorage.getItem("@Mindstack:token");
@@ -13,35 +14,37 @@ function RotaPrivada({ children }: { children: JSX.Element }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <RotaPrivada>
-              <Dashboard />
-            </RotaPrivada>
-          }
-        />
-        <Route
-          path="/curso/:cursoId"
-          element={
-            <RotaPrivada>
-              <CursoDetalhe />
-            </RotaPrivada>
-          }
-        />
-        <Route path="/kanban" element={<Kanban />} />
+      <ThemeProvider>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={
+              <RotaPrivada>
+                <Dashboard />
+              </RotaPrivada>
+            }
+          />
+          <Route
+            path="/curso/:cursoId"
+            element={
+              <RotaPrivada>
+                <CursoDetalhe />
+              </RotaPrivada>
+            }
+          />
+          <Route path="/kanban" element={<Kanban />} />
 
-        <Route
-          path="/disciplina/:disciplinaId"
-          element={
-            <RotaPrivada>
-              <DisciplinaDetalhe />
-            </RotaPrivada>
-          }
-        />
-      </Routes>
+          <Route
+            path="/disciplina/:disciplinaId"
+            element={
+              <RotaPrivada>
+                <DisciplinaDetalhe />
+              </RotaPrivada>
+            }
+          />
+        </Routes>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

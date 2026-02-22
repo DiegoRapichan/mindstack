@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // 1. Adicione este import
+import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { BrainCircuit, Mail, Lock } from "lucide-react";
 
 export function Login() {
-  const navigate = useNavigate(); // 2. ADICIONE ESTA LINHA AQUI! (Tem que ser logo no começo da função)
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -16,20 +16,16 @@ export function Login() {
 
     try {
       if (isCadastro) {
-        // Rota de cadastro
         await api.post("/auth/register", { nome, email, senha });
         alert("Cadastro realizado com sucesso! Agora faça o login.");
         setIsCadastro(false);
       } else {
-        // Rota de login
         const response = await api.post("/auth/login", { email, senha });
         const { token, usuario } = response.data;
 
-        // Salvamos o token no navegador
         localStorage.setItem("@Mindstack:token", token);
         localStorage.setItem("@Mindstack:user", JSON.stringify(usuario));
 
-        // 3. E aqui a gente usa o navigate!
         navigate("/dashboard");
       }
     } catch (error) {

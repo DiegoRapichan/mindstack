@@ -4,11 +4,9 @@ import { Request, Response } from "express";
 const prisma = new PrismaClient();
 
 export const NotificacaoController = {
-  // 1. Buscar notificações do usuário logado
   async buscarNotificacoes(req: Request, res: Response) {
     try {
-      // Pega o ID do usuário injetado pelo seu middleware de JWT
-      const usuarioId = req.userId; // ou req.usuario.id (ajuste para o seu padrão)
+      const usuarioId = req.userId;
 
       if (!usuarioId) {
         return res.status(401).json({ error: "Usuário não autenticado." });
@@ -19,7 +17,7 @@ export const NotificacaoController = {
           usuarioId: usuarioId,
         },
         orderBy: {
-          createdAt: "desc", // As mais recentes primeiro
+          createdAt: "desc",
         },
       });
 
@@ -30,7 +28,6 @@ export const NotificacaoController = {
     }
   },
 
-  // 2. Marcar uma notificação específica como lida
   async marcarComoLida(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -47,10 +44,9 @@ export const NotificacaoController = {
     }
   },
 
-  // 3. (Bônus) Marcar TODAS como lidas de uma vez
   async marcarTodasComoLidas(req: Request, res: Response) {
     try {
-      const usuarioId = req.userId; // ajuste conforme seu JWT
+      const usuarioId = req.userId;
 
       await prisma.notificacao.updateMany({
         where: {

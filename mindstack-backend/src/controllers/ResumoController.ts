@@ -23,7 +23,6 @@ export class ResumoController {
           .json({ error: "É necessário informar o ID da disciplina." });
       }
 
-      // Verifica se a disciplina existe e pertence ao usuário
       const disciplina = await prisma.disciplina.findFirst({
         where: { id: String(disciplinaId), usuarioId },
       });
@@ -61,7 +60,7 @@ export class ResumoController {
           conteudo: resumoIA,
           tamanhoOriginal: textoCru.length,
           disciplinaId: String(disciplinaId),
-          aulaId: aulaId ? String(aulaId) : null, // Vincula à aula específica
+          aulaId: aulaId ? String(aulaId) : null,
         },
       });
 

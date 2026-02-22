@@ -25,12 +25,10 @@ export function CursoDetalhe() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Estados do formulário
   const [nome, setNome] = useState("");
   const [professor, setProfessor] = useState("");
   const [maxFaltas, setMaxFaltas] = useState("");
 
-  // Busca as disciplinas assim que a tela abre
   useEffect(() => {
     async function carregarDisciplinas() {
       try {
@@ -53,10 +51,8 @@ export function CursoDetalhe() {
         cursoId,
       });
 
-      // Adiciona a nova matéria na lista
       setDisciplinas([...disciplinas, response.data]);
 
-      // Limpa tudo e fecha o modal
       setNome("");
       setProfessor("");
       setMaxFaltas("");

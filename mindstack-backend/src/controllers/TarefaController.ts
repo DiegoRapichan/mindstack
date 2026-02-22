@@ -5,44 +5,35 @@ import { AuthRequest } from "../middlewares/authMiddleware";
 const prisma = new PrismaClient();
 
 export const TarefaController = {
-  // 1. Listar tarefas do Kanban do usuário
   async listar(req: AuthRequest, res: Response) {
     try {
-      const usuarioId = req.userId; // ou req.usuario.id, conforme seu auth
+      const usuarioId = req.usuarioId;
+      if (!usuarioId)
+        return res.status(401).json({ error: "Usuário não autenticado." });
 
       const tarefas = await prisma.tarefa.findMany({
         where: { usuarioId },
+        include: {
+          disciplina: { select: { nome: true } },
+        },
         orderBy: { createdAt: "desc" },
       });
 
       return res.status(200).json(tarefas);
     } catch (error) {
+      console.error("❌ Erro no listar tarefas:", error);
       return res.status(500).json({ error: "Erro ao buscar tarefas." });
     }
   },
 
-  // 2. Criar novo card
   async criar(req: AuthRequest, res: Response) {
-    console.log("➡️ [POST] /tarefas - Requisição bateu no Controller!");
-
     try {
       const usuarioId = req.usuarioId;
-      console.log("👤 ID do Usuário Logado:", usuarioId);
+      const { titulo, descricao, status, disciplinaId, dataEntrega } = req.body;
 
-      const { titulo, descricao, status, disciplinaId } = req.body;
-      console.log("📦 Dados recebidos do Front-end:", {
-        titulo,
-        descricao,
-        status,
-        disciplinaId,
-      });
-
-      if (!usuarioId) {
-        console.log("❌ Bloqueado: Usuário sem ID");
+      if (!usuarioId)
         return res.status(401).json({ error: "Usuário não autenticado." });
-      }
 
-      console.log("⏳ Tentando salvar no banco de dados...");
       const novaTarefa = await prisma.tarefa.create({
         data: {
           titulo,
@@ -50,13 +41,13 @@ export const TarefaController = {
           status: status || "TODO",
           usuarioId,
           disciplinaId,
+          dataEntrega: dataEntrega ? new Date(dataEntrega) : null,
         },
       });
 
-      console.log(`✅ Tarefa salva no banco com sucesso! ID:`, novaTarefa.id);
       return res.status(201).json(novaTarefa);
     } catch (error) {
-      console.error("💥 ERRO AO CRIAR TAREFA NO BANCO:", error);
+      console.error("❌ Erro ao criar tarefa:", error);
       return res.status(500).json({ error: "Erro ao criar tarefa." });
     }
   },
@@ -64,7 +55,7 @@ export const TarefaController = {
   async atualizarStatus(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { status } = req.body; // 'TODO', 'IN_PROGRESS' ou 'DONE'
+      const { status } = req.body;
 
       const tarefaAtualizada = await prisma.tarefa.update({
         where: { id },
@@ -73,7 +64,65 @@ export const TarefaController = {
 
       return res.status(200).json(tarefaAtualizada);
     } catch (error) {
+      console.error("❌ Erro ao mover a tarefa:", error);
       return res.status(500).json({ error: "Erro ao mover a tarefa." });
+    }
+  },
+
+  async excluir(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+
+      await prisma.tarefa.delete({
+        where: { id },
+      });
+
+      return res.status(204).send();
+    } catch (error) {
+      console.error("❌ Erro ao excluir tarefa:", error);
+      return res.status(500).json({ error: "Erro ao excluir tarefa." });
+    }
+  },
+
+  async atualizar(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const { titulo, descricao, disciplinaId, dataEntrega } = req.body;
+
+      const tarefaEditada = await prisma.tarefa.update({
+        where: { id },
+        data: {
+          titulo,
+          descricao,
+          disciplinaId,
+          dataEntrega: dataEntrega ? new Date(dataEntrega) : null,
+        },
+      });
+
+      return res.status(200).json(tarefaEditada);
+    } catch (error) {
+      console.error("❌ Erro ao editar tarefa:", error);
+      return res.status(500).json({ error: "Erro ao editar tarefa." });
+    }
+  },
+  async reordenar(req: AuthRequest, res: Response) {
+    try {
+      const { tarefas } = req.body;
+
+      const atualizacoes = tarefas.map((t: any) =>
+        prisma.tarefa.update({
+          where: { id: t.id },
+          data: { status: t.status, ordem: t.ordem },
+        }),
+      );
+      await prisma.$transaction(atualizacoes);
+
+      return res
+        .status(200)
+        .json({ message: "Reordenação concluída com sucesso!" });
+    } catch (error) {
+      console.error("❌ Erro ao reordenar tarefas:", error);
+      return res.status(500).json({ error: "Erro ao reordenar tarefas." });
     }
   },
 };

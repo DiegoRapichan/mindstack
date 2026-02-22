@@ -5,7 +5,6 @@ import { CursoDetalhe } from "./pages/CursoDetalhe";
 import { DisciplinaDetalhe } from "./pages/DisciplinaDetalhe";
 import { Kanban } from "./pages/Kanban";
 
-// Função simples para proteger rotas: só entra se tiver token!
 function RotaPrivada({ children }: { children: JSX.Element }) {
   const token = localStorage.getItem("@Mindstack:token");
   return token ? children : <Navigate to="/" />;

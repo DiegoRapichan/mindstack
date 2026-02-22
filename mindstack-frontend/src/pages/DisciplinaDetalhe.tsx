@@ -30,7 +30,6 @@ export function DisciplinaDetalhe() {
   const [aulas, setAulas] = useState<Aula[]>([]);
   const [isModalAulaOpen, setIsModalAulaOpen] = useState(false);
 
-  // Estados para o Modal de Resumo IA
   const [isModalResumoOpen, setIsModalResumoOpen] = useState(false);
   const [aulaSelecionadaId, setAulaSelecionadaId] = useState<string | null>(
     null,
@@ -39,7 +38,6 @@ export function DisciplinaDetalhe() {
   const [isGerando, setIsGerando] = useState(false);
   const [resumoGerado, setResumoGerado] = useState<string | null>(null);
 
-  // Estados do form de Aula
   const [titulo, setTitulo] = useState("");
   const [dataHora, setDataHora] = useState("");
   const [linkVideo, setLinkVideo] = useState("");

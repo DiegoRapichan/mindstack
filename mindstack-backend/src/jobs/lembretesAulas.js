@@ -4,8 +4,6 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const iniciarCronJobs = () => {
-  // Deixei '* * * * *' para rodar a cada 1 minuto e você poder testar agora.
-  // Depois que funcionar, mude para '0 8 * * *' para rodar só às 08h da manhã.
   cron.schedule(
     "0 6 * * *",
     //"* * * * *",
@@ -14,7 +12,6 @@ export const iniciarCronJobs = () => {
 
       try {
         const hoje = new Date();
-        // Define inicio e fim do dia atual
         const inicioDoDia = new Date(hoje.setHours(0, 0, 0, 0));
         const fimDoDia = new Date(hoje.setHours(23, 59, 59, 999));
 
@@ -26,7 +23,7 @@ export const iniciarCronJobs = () => {
             },
           },
           include: {
-            disciplina: true, // Traz os dados da disciplina para pegarmos o nome
+            disciplina: true,
           },
         });
 
@@ -35,7 +32,6 @@ export const iniciarCronJobs = () => {
             `🔔 [LEMBRETE] Você tem ${aulasDeHoje.length} aula(s) hoje!`,
           );
 
-          // Trocamos o forEach por for...of para podermos usar o 'await' do Prisma
           for (const aula of aulasDeHoje) {
             const horario = aula.dataHora
               ? aula.dataHora.toLocaleTimeString("pt-BR", {
@@ -47,19 +43,16 @@ export const iniciarCronJobs = () => {
             const nomeDisciplina =
               aula.disciplina?.nome || "Disciplina desconhecida";
 
-            // Mantemos o log no terminal para você continuar acompanhando
             console.log(
               `- ${nomeDisciplina} às ${horario} | Link: ${aula.linkVideo || "Nenhum link salvo"}`,
             );
 
-            // NOVA PARTE: Salva a notificação no banco de dados!
             try {
               await prisma.notificacao.create({
                 data: {
                   titulo: "Você tem aula hoje!",
                   mensagem: `Não se esqueça: aula de ${nomeDisciplina} às ${horario}.`,
-                  // IMPORTANTE: Aqui assumimos que a tabela Aula tem um usuarioId.
-                  // Se não tiver, me avise para ajustarmos a busca!
+
                   usuarioId: aula.usuarioId,
                 },
               });

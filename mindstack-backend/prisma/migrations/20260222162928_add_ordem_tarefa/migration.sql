@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Tarefa" ADD COLUMN     "ordem" INTEGER NOT NULL DEFAULT 0;

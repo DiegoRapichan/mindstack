@@ -143,6 +143,8 @@ model Tarefa {
   titulo      String
   descricao   String?  // Opcional, para detalhes da tarefa
   status      String   @default("TODO") // Valores esperados: "TODO", "IN_PROGRESS", "DONE"
+  dataEntrega  DateTime? 
+  ordem        Int         @default(0)
   
   // Uma tarefa pertence a um usuário
   usuarioId   String

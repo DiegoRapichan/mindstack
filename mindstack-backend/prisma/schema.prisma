@@ -49,6 +49,7 @@ model Usuario {
   disciplinas Disciplina[]
   aulas       Aula[]
   tarefas     Tarefa[]
+  notificacoes Notificacao[]
 }
 
 model Curso {
@@ -109,19 +110,6 @@ model Nota {
   disciplina   Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
 }
 
-model Tarefa {
-  id           String       @id @default(uuid())
-  titulo       String
-  descricao    String?
-  dataEntrega  DateTime
-  status       StatusTarefa @default(PENDENTE)
-
-  disciplinaId String
-  disciplina   Disciplina   @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-
-  usuarioId    String
-  usuario      Usuario      @relation(fields: [usuarioId], references: [id])
-}
 
 model Resumo {
   id              String      @id @default(uuid())
@@ -135,4 +123,35 @@ model Resumo {
   aula            Aula?       @relation(fields: [aulaId], references: [id])
   
   createdAt       DateTime    @default(now())
+}
+
+model Notificacao {
+  id        String   @id @default(uuid())
+  titulo    String
+  mensagem  String
+  lida      Boolean  @default(false)
+  
+  // Relacionamento com o Usuário que vai receber o aviso
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+  
+  createdAt DateTime @default(now())
+}
+
+model Tarefa {
+  id          String   @id @default(uuid())
+  titulo      String
+  descricao   String?  // Opcional, para detalhes da tarefa
+  status      String   @default("TODO") // Valores esperados: "TODO", "IN_PROGRESS", "DONE"
+  
+  // Uma tarefa pertence a um usuário
+  usuarioId   String
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  // (Opcional) Podemos vincular a tarefa a uma disciplina específica
+  disciplinaId String?
+  disciplina   Disciplina? @relation(fields: [disciplinaId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

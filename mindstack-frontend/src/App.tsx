@@ -3,6 +3,7 @@ import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { CursoDetalhe } from "./pages/CursoDetalhe";
 import { DisciplinaDetalhe } from "./pages/DisciplinaDetalhe";
+import { Kanban } from "./pages/Kanban";
 
 // Função simples para proteger rotas: só entra se tiver token!
 function RotaPrivada({ children }: { children: JSX.Element }) {
@@ -31,6 +32,7 @@ export default function App() {
             </RotaPrivada>
           }
         />
+        <Route path="/kanban" element={<Kanban />} />
 
         <Route
           path="/disciplina/:disciplinaId"

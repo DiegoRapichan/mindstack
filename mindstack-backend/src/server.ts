@@ -7,6 +7,8 @@ import { cursoRoutes } from "./routes/curso.routes";
 import { resumoRoutes } from "./routes/resumo.routes";
 import { disciplinaRoutes } from "./routes/disciplina.routes";
 import { aulaRoutes } from "./routes/aula.routes";
+import { iniciarCronJobs } from "./jobs/lembretesAulas.js";
+import { tarefaRoutes } from "./routes/tarefa.routes";
 
 const app = express();
 
@@ -19,6 +21,9 @@ app.use("/cursos", cursoRoutes);
 app.use("/disciplinas", disciplinaRoutes);
 app.use("/aulas", aulaRoutes);
 app.use("/resumos", resumoRoutes);
+app.use("/tarefas", tarefaRoutes);
+
+iniciarCronJobs();
 
 app.get("/health", (req, res) => {
   return res.json({

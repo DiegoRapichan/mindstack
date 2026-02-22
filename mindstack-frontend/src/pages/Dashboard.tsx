@@ -16,6 +16,7 @@ export function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [titulo, setTitulo] = useState("");
   const [plataforma, setPlataforma] = useState("");
+  const [tipo, setTipo] = useState("CURSO_LIVRE");
 
   // Pega o usuário logado
   const usuarioString = localStorage.getItem("@Mindstack:user");
@@ -26,11 +27,12 @@ export function Dashboard() {
     async function carregarCursos() {
       try {
         const response = await api.get("/cursos");
-        setCursos(response.data);
+        setCursos(response.data); // Pega os cursos do banco e joga na tela!
       } catch (error) {
-        console.error("Erro ao carregar cursos", error);
+        console.error("Erro ao carregar cursos:", error);
       }
     }
+
     carregarCursos();
   }, []);
 
@@ -43,19 +45,18 @@ export function Dashboard() {
   async function handleCriarCurso(e: React.FormEvent) {
     e.preventDefault();
     try {
-      // Bate na rota POST /cursos do nosso backend
-      const response = await api.post("/cursos", { titulo, plataforma });
+      // Fazemos apenas UMA chamada para a API enviando tudo (titulo, plataforma e tipo)
+      const response = await api.post("/cursos", { titulo, plataforma, tipo });
 
-      // Atualiza a lista na tela na mesma hora!
       setCursos([...cursos, response.data]);
 
-      // Limpa os campos e fecha o modal
       setTitulo("");
       setPlataforma("");
+      setTipo("CURSO_LIVRE");
       setIsModalOpen(false);
     } catch (error) {
       console.error("Erro ao criar curso", error);
-      alert("Erro ao criar o curso. Verifique se o backend está rodando.");
+      alert("Erro ao criar o curso.");
     }
   }
 
@@ -117,7 +118,7 @@ export function Dashboard() {
                 onClick={() => navigate(`/curso/${curso.id}`)}
                 className="w-full flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 py-2.5 rounded-lg text-sm font-medium transition-colors"
               >
-                <FileText className="w-4 h-4" /> Ver Resumos e IA
+                <FileText className="w-4 h-4" /> Acessar Matérias
               </button>
             </div>
           ))
@@ -167,6 +168,21 @@ export function Dashboard() {
                   placeholder="Ex: Udemy, Rocketseat, Alura..."
                   required
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Tipo de Curso
+                </label>
+                <select
+                  value={tipo}
+                  onChange={(e) => setTipo(e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value="GRADUACAO">Graduação</option>
+                  <option value="POS_GRADUACAO">Pós-Graduação</option>
+                  <option value="CURSO_LIVRE">Curso Livre</option>
+                  <option value="CERTIFICACAO">Certificação</option>
+                </select>
               </div>
 
               <button

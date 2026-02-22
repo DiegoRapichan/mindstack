@@ -1,108 +1,138 @@
-// prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
+// ================= ENUMS (Opções Fixas) =================
+enum TipoCurso {
+  GRADUACAO
+  POS_GRADUACAO
+  CURSO_LIVRE
+  CERTIFICACAO
+}
+
+enum StatusCurso {
+  EM_ANDAMENTO
+  CONCLUIDO
+  PAUSADO
+}
+
+enum StatusPresenca {
+  PENDENTE
+  PRESENTE
+  FALTA
+  ASSISTIDA_GRAVADA 
+}
+
+enum StatusTarefa {
+  PENDENTE
+  FAZENDO
+  CONCLUIDA
+  ATRASADA
+}
+
+// ================= TABELAS =================
 
 model Usuario {
   id        String   @id @default(uuid())
   nome      String
   email     String   @unique
   senha     String
-  cursos    Curso[]
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  cursos      Curso[]
+  disciplinas Disciplina[]
+  aulas       Aula[]
+  tarefas     Tarefa[]
 }
 
 model Curso {
-  id          String   @id @default(uuid())
-  titulo      String   // Ex: Pós Fullstack, Java Udemy
-  plataforma  String   // Ex: Descomplica, Udemy, Faculdade X
-  status      String   // Ex: PLANEJADO, CURSANDO, ATRASADO, CONCLUIDO
-  tipo        String   // Ex: GRADUACAO, POS, CURSO_LIVRE
-  dataInicio  DateTime?
-  dataFim     DateTime?
+  id         String      @id @default(uuid())
+  titulo     String
+  plataforma String     
+  tipo       TipoCurso
+  status     StatusCurso @default(EM_ANDAMENTO)
   
-  usuarioId   String
-  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
-  
-  modulos     Modulo[]
-  habilidades SkillCurso[]
-  resumos  Resumo[] 
+  usuarioId  String
+  usuario    Usuario     @relation(fields: [usuarioId], references: [id])
+
+  disciplinas Disciplina[]
+  createdAt   DateTime    @default(now())
 }
 
-model Modulo {
-  id          String   @id @default(uuid())
-  titulo      String
-  ordem       Int
-  cursoId     String
-  curso       Curso    @relation(fields: [cursoId], references: [id])
+model Disciplina {
+  id             String  @id @default(uuid())
+  nome           String
+  professor      String?
+  maxFaltasPermitidas Int?
   
-  aulas       Aula[]
-  trabalhos   Trabalho[]
+  cursoId        String
+  curso          Curso   @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  
+  usuarioId      String
+  usuario        Usuario @relation(fields: [usuarioId], references: [id])
+
+  aulas          Aula[]
+  notas          Nota[]
+  tarefas        Tarefa[]
+  resumos        Resumo[]
 }
 
 model Aula {
-  id              String   @id @default(uuid())
-  titulo          String
-  sincrona        Boolean  @default(false)
-  dataHora        DateTime? 
-  linkAcesso      String?
-  falta           Boolean  @default(false) 
-  concluida       Boolean  @default(false)
+  id           String         @id @default(uuid())
+  titulo       String         
+  dataHora     DateTime?      
+  linkVideo    String?        
+  status       StatusPresenca @default(PENDENTE) // Controle de Faltas
   
-  moduloId        String
-  modulo          Modulo   @relation(fields: [moduloId], references: [id])
-  
-  resumo          ResumoIA?
+  disciplinaId String
+  disciplina   Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  usuarioId    String
+  usuario      Usuario        @relation(fields: [usuarioId], references: [id])
+
+  resumos      Resumo[]       
 }
 
-model ResumoIA {
-  id              String   @id @default(uuid())
-  conteudo        String   @db.Text
-  textoOriginal   String   @db.Text
-  dataGeracao     DateTime @default(now())
+model Nota {
+  id           String     @id @default(uuid())
+  nomeProva    String     // Ex: "N1", "Projeto Final"
+  notaObtida   Float
+  peso         Float?     @default(1.0)
   
-  aulaId          String   @unique
-  aula            Aula     @relation(fields: [aulaId], references: [id])
+  disciplinaId String
+  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
 }
 
-model Trabalho {
-  id          String   @id @default(uuid())
-  titulo      String
-  descricao   String?
-  dataEntrega DateTime
-  status      String   // PENDENTE, EM_ANDAMENTO, CONCLUIDO
-  
-  moduloId    String
-  modulo      Modulo   @relation(fields: [moduloId], references: [id])
-}
+model Tarefa {
+  id           String       @id @default(uuid())
+  titulo       String
+  descricao    String?
+  dataEntrega  DateTime
+  status       StatusTarefa @default(PENDENTE)
 
-model Skill {
-  id          String   @id @default(uuid())
-  nome        String   @unique 
-  cursos      SkillCurso[]
-}
+  disciplinaId String
+  disciplina   Disciplina   @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
 
-model SkillCurso {
-  cursoId     String
-  skillId     String
-  curso       Curso    @relation(fields: [cursoId], references: [id])
-  skill       Skill    @relation(fields: [skillId], references: [id])
-
-  @@id([cursoId, skillId])
+  usuarioId    String
+  usuario      Usuario      @relation(fields: [usuarioId], references: [id])
 }
 
 model Resumo {
-  id              String   @id @default(uuid())
-  conteudo        String   @db.Text // @db.Text garante que cabe textos gigantes do Gemini
+  id              String      @id @default(uuid())
+  conteudo        String
   tamanhoOriginal Int
   
-  // Relacionamento com Curso
-  cursoId         String
-  curso           Curso    @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  disciplinaId    String
+  disciplina      Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  aulaId          String?     
+  aula            Aula?       @relation(fields: [aulaId], references: [id])
   
-  createdAt       DateTime @default(now())
+  createdAt       DateTime    @default(now())
 }

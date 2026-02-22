@@ -1,10 +1,12 @@
-import "dotenv/config"; // ISSO DEVE SER A PRIMEIRA LINHA DO ARQUIVO! 🚨
+import "dotenv/config";
 
 import express from "express";
 import cors from "cors";
 import { usuarioRoutes } from "./routes/usuario.routes";
 import { cursoRoutes } from "./routes/curso.routes";
 import { resumoRoutes } from "./routes/resumo.routes";
+import { disciplinaRoutes } from "./routes/disciplina.routes";
+import { aulaRoutes } from "./routes/aula.routes";
 
 const app = express();
 
@@ -14,7 +16,9 @@ app.use(express.json());
 // Registra as rotas principais
 app.use("/auth", usuarioRoutes);
 app.use("/cursos", cursoRoutes);
-app.use("/resumos", resumoRoutes); // Aqui a mágica acontece e vai pro arquivo certo!
+app.use("/disciplinas", disciplinaRoutes);
+app.use("/aulas", aulaRoutes);
+app.use("/resumos", resumoRoutes);
 
 app.get("/health", (req, res) => {
   return res.json({

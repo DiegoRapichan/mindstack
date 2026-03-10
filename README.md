@@ -1,6 +1,15 @@
-# MindStack
+# 🧠 MindStack — Plataforma Inteligente de Gestão de Estudos
 
+> **Transformando a organização acadêmica com Inteligência Artificial.**
+> O MindStack é um ecossistema completo que vai muito além de um "To-Do List". Ele une a organização estruturada de cursos e um sistema Kanban de tarefas com o poder da **Inteligência Artificial**, capaz de ler PDFs extensos e gerar resumos automáticos para otimizar o tempo do estudante.
+>
 > Plataforma full-stack de gestão acadêmica com pipeline de IA integrado — processa PDFs em memória, aplica prompt engineering sobre o Google Gemini para gerar resumos estruturados, e gerencia cursos, disciplinas, aulas, frequência e tarefas com Kanban drag-and-drop.
+
+[![Deploy Frontend](https://img.shields.io/badge/Vercel-Online-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://mindstack-sigma.vercel.app)
+[![Deploy Backend](https://img.shields.io/badge/Render-API_Online-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://mindstack-api-cdy3.onrender.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)]()
+[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)]()
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)]()
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js_18-339933?style=flat&logo=node.js&logoColor=white)
@@ -9,18 +18,43 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=flat&logo=google&logoColor=white)
 
-**[🚀 App ao Vivo](https://mindstack-sigma.vercel.app)** • **[🔌 API em Produção](https://mindstack-api-cdy3.onrender.com)**
+🔗 **[🚀 App ao Vivo](https://mindstack-sigma.vercel.app)** • **[🔌 API em Produção](https://mindstack-api-cdy3.onrender.com)**
+
+---
+
+## 🌟 O Grande Diferencial
+
+Este projeto foi desenvolvido para demonstrar domínio no ciclo completo de desenvolvimento de software (Full Cycle) e na resolução de problemas reais, aplicando tecnologias modernas:
+
+- 🤖 **Motor de Resumos com IA (Google Gemini):** Pipeline no backend que recebe uploads de arquivos PDF, realiza extração de texto (parsing) e consome a API do Google Generative AI para entregar resumos estruturados e inteligentes.
+- ☁️ **Arquitetura Cloud & Serverless:** Sistema totalmente em produção. Banco de dados relacional Serverless (**Neon**), API REST hospedada no **Render** e Frontend distribuído pela **Vercel**.
+- 📋 **Gestão Visual com Kanban:** Interface dinâmica para gerenciamento de tarefas e progresso, proporcionando uma excelente Experiência do Usuário (UX).
+- 🔐 **Segurança e Autenticação:** Sistema sólido de rotas privadas, autenticação baseada em **JWT** (JSON Web Tokens) e senhas criptografadas (Bcryptjs).
+
+---
+
+## 📸 Espiadinha no Sistema
+
+<p align="center">
+  <img src="screenshots/dashboard-claro.png" width="49%" alt="Dashboard em Light Mode">
+  <img src="screenshots/dashboard-escuro.png" width="49%" alt="Dashboard em Dark Mode">
+</p>
+
+<p align="center">
+  <img src="screenshots/resumo.png" width="49%" alt="Geração de Resumos com IA (Google Gemini)">
+  <img src="screenshots/kanban.png" width="49%" alt="Gestão de Tarefas via Kanban">
+</p>
 
 ---
 
 ## 🛠️ Stack
 
-| Camada       | Tecnologias                                                                                                          |
-| ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Camada       | Tecnologias                                                                                                           |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
 | **Backend**  | Node.js 18 · TypeScript · Express · Prisma ORM · PostgreSQL (Neon) · JWT · Bcryptjs · Nodemailer · pdf2json · Multer |
-| **IA**       | Google Generative AI SDK (`gemini-flash-latest`) · Prompt Engineering                                                |
+| **IA**       | Google Generative AI SDK (`gemini-flash-latest`) · Prompt Engineering                                                 |
 | **Frontend** | React 18 · TypeScript · Vite · Tailwind CSS · Axios · React Router DOM · Context API                                 |
-| **Deploy**   | Render (backend) · Vercel (frontend) · Neon (PostgreSQL serverless)                                                  |
+| **Deploy**   | Render (backend) · Vercel (frontend) · Neon (PostgreSQL serverless)                                                   |
 
 ---
 
@@ -99,34 +133,29 @@ Usuario
 
 ## ✨ Funcionalidades
 
-**IA e Processamento de Documentos**
-
+### 🧠 IA e Processamento de Documentos
 - Upload e parsing de PDFs em memória (sem armazenamento em disco)
 - Geração de resumos estruturados em Markdown via Google Gemini
 - Resumos vinculados à disciplina e aula específica
 - Visualização do resumo gerado diretamente na interface da aula
 
-**Gestão Acadêmica**
-
+### 📚 Gestão Acadêmica
 - Hierarquia completa: Cursos → Disciplinas → Aulas
 - Controle de frequência por aula (Presente / Falta / Gravada)
 - Limite de faltas configurável por disciplina com alerta visual
 - Links de videoaula (Zoom/Meet) por aula
 
-**Kanban e Tarefas**
-
+### 📋 Kanban e Tarefas
 - Board Kanban com drag-and-drop (TODO / IN PROGRESS / DONE)
 - Reordenação persistida no banco via campo `ordem`
 - Tarefas recorrentes com auto-replicação ao concluir
 - Vínculo de tarefas a disciplinas específicas
 
-**Notificações**
-
+### 🔔 Notificações
 - Cron Job diário às 6h verificando pendências
 - Marcar notificação como lida individualmente ou em lote
 
-**Conta e Segurança**
-
+### 🔐 Conta e Segurança
 - Registro e login com JWT (7 dias de expiração)
 - Atualização de perfil com validação de senha atual
 - Hash bcrypt com salt 10 — senha nunca retorna na API
@@ -208,11 +237,11 @@ npm run dev          # App em http://localhost:5173
 
 ## 🌐 Deploy
 
-| Serviço        | URL                                     |
-| -------------- | --------------------------------------- |
-| Frontend       | https://mindstack-sigma.vercel.app      |
-| Backend API    | https://mindstack-api-cdy3.onrender.com |
-| Banco de dados | Neon (PostgreSQL serverless)            |
+| Serviço        | URL                                      |
+| -------------- | ---------------------------------------- |
+| Frontend       | https://mindstack-sigma.vercel.app       |
+| Backend API    | https://mindstack-api-cdy3.onrender.com  |
+| Banco de dados | Neon (PostgreSQL serverless)             |
 
 ---
 

@@ -1,4 +1,4 @@
-# 🧠 MindStack — Plataforma Inteligente de Gestão de Estudos
+# MindStack — Plataforma Inteligente de Gestão de Estudos
 
 > **Transformando a organização acadêmica com Inteligência Artificial.**
 > O MindStack é um ecossistema completo que vai muito além de um "To-Do List". Ele une a organização estruturada de cursos e um sistema Kanban de tarefas com o poder da **Inteligência Artificial**, capaz de ler PDFs extensos e gerar resumos automáticos para otimizar o tempo do estudante.
@@ -18,22 +18,22 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=flat&logo=google&logoColor=white)
 
-🔗 **[🚀 App ao Vivo](https://mindstack-sigma.vercel.app)** • **[🔌 API em Produção](https://mindstack-api-cdy3.onrender.com)**
+**[App ao Vivo](https://mindstack-sigma.vercel.app)** • **[API em Produção](https://mindstack-api-cdy3.onrender.com)**
 
 ---
 
-## 🌟 O Grande Diferencial
+## O Projeto
 
 Este projeto foi desenvolvido para demonstrar domínio no ciclo completo de desenvolvimento de software (Full Cycle) e na resolução de problemas reais, aplicando tecnologias modernas:
 
-- 🤖 **Motor de Resumos com IA (Google Gemini):** Pipeline no backend que recebe uploads de arquivos PDF, realiza extração de texto (parsing) e consome a API do Google Generative AI para entregar resumos estruturados e inteligentes.
-- ☁️ **Arquitetura Cloud & Serverless:** Sistema totalmente em produção. Banco de dados relacional Serverless (**Neon**), API REST hospedada no **Render** e Frontend distribuído pela **Vercel**.
-- 📋 **Gestão Visual com Kanban:** Interface dinâmica para gerenciamento de tarefas e progresso, proporcionando uma excelente Experiência do Usuário (UX).
-- 🔐 **Segurança e Autenticação:** Sistema sólido de rotas privadas, autenticação baseada em **JWT** (JSON Web Tokens) e senhas criptografadas (Bcryptjs).
+- **Motor de Resumos com IA (Google Gemini):** Pipeline no backend que recebe uploads de arquivos PDF, realiza extração de texto (parsing) e consome a API do Google Generative AI para entregar resumos estruturados e inteligentes.
+- **Arquitetura Cloud & Serverless:** Sistema totalmente em produção. Banco de dados relacional Serverless (**Neon**), API REST hospedada no **Render** e Frontend distribuído pela **Vercel**.
+- **Gestão Visual com Kanban:** Interface dinâmica para gerenciamento de tarefas e progresso, proporcionando uma excelente Experiência do Usuário (UX).
+- **Segurança e Autenticação:** Sistema sólido de rotas privadas, autenticação baseada em **JWT** (JSON Web Tokens) e senhas criptografadas (Bcryptjs).
 
 ---
 
-## 📸 Espiadinha no Sistema
+## Screenshots
 
 <p align="center">
   <img src="screenshots/dashboard-claro.png" width="49%" alt="Dashboard em Light Mode">
@@ -47,7 +47,7 @@ Este projeto foi desenvolvido para demonstrar domínio no ciclo completo de dese
 
 ---
 
-## 🛠️ Stack
+## Stack
 
 | Camada       | Tecnologias                                                                                                           |
 | ------------ | --------------------------------------------------------------------------------------------------------------------- |
@@ -58,7 +58,7 @@ Este projeto foi desenvolvido para demonstrar domínio no ciclo completo de dese
 
 ---
 
-## ⚙️ Destaques Técnicos
+## Destaques Técnicos
 
 **Pipeline de IA com processamento em memória**
 PDF recebido via Multer é parseado com `pdf2json` diretamente do buffer — sem escrita em disco. O texto extraído passa por limpeza de caracteres (`\r\n`) antes de ser enviado ao Gemini. O resumo gerado é persistido no banco vinculado à disciplina e aula correspondentes, com o tamanho do texto original salvo como metadado.
@@ -89,7 +89,7 @@ Tema gerenciado globalmente sem biblioteca externa de state management, com tran
 
 ---
 
-## 🤖 Pipeline de IA — Fluxo Completo
+## Pipeline de IA — Fluxo Completo
 
 ```
 Frontend (React)
@@ -117,7 +117,7 @@ Resposta JSON → frontend renderiza resumo Markdown
 
 ---
 
-## 🗄️ Modelo de Dados (Prisma)
+## Modelo de Dados (Prisma)
 
 ```
 Usuario
@@ -131,38 +131,38 @@ Usuario
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-### 🧠 IA e Processamento de Documentos
+**IA e Processamento de Documentos**
 - Upload e parsing de PDFs em memória (sem armazenamento em disco)
 - Geração de resumos estruturados em Markdown via Google Gemini
 - Resumos vinculados à disciplina e aula específica
 - Visualização do resumo gerado diretamente na interface da aula
 
-### 📚 Gestão Acadêmica
+**Gestão Acadêmica**
 - Hierarquia completa: Cursos → Disciplinas → Aulas
 - Controle de frequência por aula (Presente / Falta / Gravada)
 - Limite de faltas configurável por disciplina com alerta visual
 - Links de videoaula (Zoom/Meet) por aula
 
-### 📋 Kanban e Tarefas
+**Kanban e Tarefas**
 - Board Kanban com drag-and-drop (TODO / IN PROGRESS / DONE)
 - Reordenação persistida no banco via campo `ordem`
 - Tarefas recorrentes com auto-replicação ao concluir
 - Vínculo de tarefas a disciplinas específicas
 
-### 🔔 Notificações
+**Notificações**
 - Cron Job diário às 6h verificando pendências
 - Marcar notificação como lida individualmente ou em lote
 
-### 🔐 Conta e Segurança
+**Conta e Segurança**
 - Registro e login com JWT (7 dias de expiração)
 - Atualização de perfil com validação de senha atual
 - Hash bcrypt com salt 10 — senha nunca retorna na API
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 mindstack/
@@ -204,7 +204,7 @@ mindstack/
 
 ---
 
-## 🚀 Como Rodar Localmente
+## Como Rodar Localmente
 
 **Pré-requisitos:** Node.js 18+, PostgreSQL ou conta no [Neon](https://neon.tech) (gratuito), chave da [Google Gemini API](https://aistudio.google.com) (gratuita)
 
@@ -235,7 +235,7 @@ npm run dev          # App em http://localhost:5173
 
 ---
 
-## 🌐 Deploy
+## Deploy
 
 | Serviço        | URL                                      |
 | -------------- | ---------------------------------------- |
@@ -245,7 +245,7 @@ npm run dev          # App em http://localhost:5173
 
 ---
 
-## 👨‍💻 Autor
+## Autor
 
 **Diego Rapichan** — Desenvolvedor Full Stack · Node.js/TypeScript + React
 
